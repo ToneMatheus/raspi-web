@@ -7,6 +7,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# dependencies
 node_modules
 dist
 dist-ssr
@@ -22,3 +23,27 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# builds & caches
+build/
+dist/
+.cache/
+.npm/
+.pnp.*        
+.next/         
+out/
+
+# testing
+coverage/
+.nyc_output/
+
+# env & secrets
+.env*
+*.local
+
+# OS/IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
