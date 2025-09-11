@@ -1,25 +1,25 @@
 import { useState, useEffect } from 'react';
 import Btn from 'react-bootstrap/Button';
-import { Modal, Collapse, Card, Accordion, Container, Row, Col } from 'react-bootstrap';
+import { Modal, Card, Accordion, /*Container, Row, Col, Collapse*/ } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Spinner from 'react-bootstrap/Spinner';
 import { Alert, InputLabel } from '@mui/material';
-import Autocomplete from '@mui/material/Autocomplete';
-import TextField from '@mui/material/TextField';
+// import Autocomplete from '@mui/material/Autocomplete';
+// import TextField from '@mui/material/TextField';
 import reactLogo from '../../assets/react.svg';
 import { getAllBalances, getAllCanBalances } from '../../services/BalanceConnection';
 import styles from './Wedding.module.css';
 import type { CanItem, Item } from '../../services/ItemConnection';
 import { createCanItem, createItem, deleteCanItem, deleteItem, getAllCanItems, getAllItems } from '../../services/ItemConnection';
-import trashIcon from '../../assets/trash3.svg';
+// import trashIcon from '../../assets/trash3.svg';
 
 function WeddingPage() {
   const [can, setCan] = useState(false);
   const [totalCan, setTotalCan] = useState(0);
-  const [myTotalCan, setMyTotalCan] = useState(500);
+  const [myTotalCan] = useState<number>(500);
+  const [myTotalMoney] = useState<number>(15941.40);
   const [totalMoney, setTotalMoney] = useState(0);
-  const [myTotalMoney, setMyTotalMoney] = useState(15941.40);
   const [showModalAdd, setShowModalAdd] = useState(false);
   const [toast, setToast] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   const [loading, setLoading] = useState(false);
