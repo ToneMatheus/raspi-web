@@ -1,4 +1,6 @@
 // src/api/auth.ts
+const API_BASE_URL = `${import.meta.env.VITE_REACT_APP_BE_URL}/api`;
+
 export type UserDto = { id: string; username: string };
 
 let authToken: string | null = null;
@@ -8,7 +10,7 @@ export function setAuthToken(token: string | null) {
 }
 
 export async function login(username: string, password: string) {
-  const res = await fetch("/api/login", {
+  const res = await fetch(`${API_BASE_URL}/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email: username, password }), // or { username, password } if your API expects that
@@ -24,7 +26,7 @@ export async function login(username: string, password: string) {
 }
 
 export async function getMe(): Promise<UserDto> {
-  const res = await fetch("/api/me", {
+  const res = await fetch(`${API_BASE_URL}/me`, {
     headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
   });
   if (!res.ok) {
