@@ -45,8 +45,8 @@ const Navigation: React.FC = () => {
           <ul className="navbar-nav ms-auto">
             <li className="nav-item">
               <Link 
-                className={`nav-link ${location.pathname === '/' ? 'active' : ''}`} 
-                to="/"
+                className={`nav-link ${location.pathname === '/wedding' ? 'active' : ''}`} 
+                to="/wedding"
                 onClick={closeCollapse}
               >
                 Wedding Page

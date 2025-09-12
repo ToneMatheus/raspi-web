@@ -4,22 +4,37 @@ import WeddingPage from './components/Wedding/WeddingPage'
 import About from './components/About'
 import './App.css'
 import SpotAI from './components/SpotAI'
+import LoginPage from './components/Auth/LoginPage'
+import { AuthProvider } from "./components/Auth/AuthContext";
+import { RequireAuth } from "./components/Auth/RequireAuth";
+import LayoutWithNav from './components/LayoutWithNav'
 
 
 function App() {
   
   return (
    
+    <AuthProvider>
       <Router>
-        <div className="App">
-          <Navigation />
-          <Routes>
-            <Route path="/" element={<WeddingPage />} />
+        <Routes>
+          {/* Public: no navbar */}
+          <Route path="/" element={<LoginPage />} />
+
+          {/* Protected: navbar only shows when logged in */}
+          <Route
+            element={
+              <RequireAuth>
+                <LayoutWithNav />
+              </RequireAuth>
+            }
+          >
+            <Route path="/wedding" element={<WeddingPage />} />
             <Route path="/spotai" element={<SpotAI />} />
             <Route path="/about" element={<About />} />
-          </Routes>
-        </div>
+          </Route>
+        </Routes>
       </Router>
+    </AuthProvider>
   
   )
 }

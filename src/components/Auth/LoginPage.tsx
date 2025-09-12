@@ -1,0 +1,53 @@
+import React, { useState } from "react";
+import styles from "./LoginPage.module.css";
+import { useAuth } from "./AuthContext";
+import { useLocation, useNavigate } from "react-router-dom";
+
+const Login: React.FC = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const { signIn } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as any)?.from?.pathname || "/wedding";
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Login attempt:", { username, password });
+    setError(null);
+    try {
+      await signIn(username, password);
+      navigate(from, { replace: true });
+    } catch (err: any) {
+      setError(err?.message ?? "Login failed");
+    }
+    // TODO: add authentication logic here
+  };
+
+  return (
+    <div className={styles.loginContainer}>
+      <form className={styles.loginBox} onSubmit={handleSubmit}>
+        <h2>Login</h2>
+        {error && <div className={styles.error}>{error}</div>}
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit">Login</button>
+      </form>
+    </div>
+  );
+};
+
+export default Login;
