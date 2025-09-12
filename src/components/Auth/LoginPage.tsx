@@ -6,6 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -17,10 +18,15 @@ const Login: React.FC = () => {
     // console.log("Login attempt:", { username, password });
     setError(null);
     try {
+      setIsLoading(true);
       await signIn(username, password);
       navigate(from, { replace: true });
     } catch (err: any) {
       setError(err?.message ?? "Login failed");
+    }
+    finally 
+    {
+      setIsLoading(false); 
     }
     // TODO: add authentication logic here
   };
@@ -44,7 +50,18 @@ const Login: React.FC = () => {
           required
           />
           {error && <div className={styles.error}>{error}</div>}
-        <button type="submit">Login</button>
+        <button type="submit">{isLoading ? (
+            <>
+              <span 
+                className="spinner-border spinner-border-sm me-2" 
+                role="status" 
+                aria-hidden="true"
+              ></span>
+              Logging in...
+            </>
+          ) : (
+            "Login"
+          )}</button>
       </form>
     </div>
   );
