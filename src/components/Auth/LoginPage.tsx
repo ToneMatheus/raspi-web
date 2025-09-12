@@ -14,7 +14,7 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login attempt:", { username, password });
+    // console.log("Login attempt:", { username, password });
     setError(null);
     try {
       await signIn(username, password);
@@ -29,21 +29,21 @@ const Login: React.FC = () => {
     <div className={styles.loginContainer}>
       <form className={styles.loginBox} onSubmit={handleSubmit}>
         <h2>Login</h2>
-        {error && <div className={styles.error}>{error}</div>}
         <input
           type="text"
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
-        />
+          />
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-        />
+          />
+          {error && <div className={styles.error}>{error}</div>}
         <button type="submit">Login</button>
       </form>
     </div>

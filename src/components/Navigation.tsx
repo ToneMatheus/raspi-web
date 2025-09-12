@@ -21,15 +21,17 @@ const Navigation: React.FC = () => {
         </Link>
 
         {/* Search bar */}
-        <form className="d-flex mx-auto" style={{ flex: 1, maxWidth: "500px" }}>
-          <input 
-            className="form-control me-2" 
-            type="search" 
-            placeholder="What do you want to play?" 
-            aria-label="Search"
-          />
-          <button className="btn btn-outline-light" type="submit">Search</button>
-        </form>
+        {location.pathname === "/spotai" && (
+          <form className="d-flex mx-auto" style={{ flex: 1, maxWidth: "500px" }}>
+            <input 
+              className="form-control me-2" 
+              type="search" 
+              placeholder="What do you want to play?" 
+              aria-label="Search"
+            />
+            <button className="btn btn-outline-light" type="submit">Search</button>
+          </form>
+        )}
         
         <button 
           className="navbar-toggler" 
