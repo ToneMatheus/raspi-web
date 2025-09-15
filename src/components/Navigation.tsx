@@ -56,6 +56,15 @@ const Navigation: React.FC = () => {
             </li>
             <li className="nav-item">
               <Link 
+                className={`nav-link ${location.pathname === '/spending' ? 'active' : ''}`} 
+                to="/spending"
+                onClick={closeCollapse}
+              >
+                Spending Page
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link 
                 className={`nav-link ${location.pathname === '/spotai' ? 'active' : ''}`} 
                 to="/spotai"
                 onClick={closeCollapse}

@@ -1,0 +1,14 @@
+.successToast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    width: 300px;
+    animation: fadeInSlide 0.3s ease-out;
+}
+
+.customAccordionItem .accordion-button {
+  background-color: #f0c040 !important;
+  
+}
+

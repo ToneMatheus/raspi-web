@@ -8,6 +8,7 @@ import LoginPage from './components/Auth/LoginPage'
 import { AuthProvider } from "./components/Auth/AuthContext";
 import { RequireAuth } from "./components/Auth/RequireAuth";
 import LayoutWithNav from './components/LayoutWithNav'
+import SpendingPage from './components/Spending/SpendingPage'
 
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
             }
           >
             <Route path="/wedding" element={<WeddingPage />} />
+            <Route path="/spending" element={<SpendingPage />} />
             <Route path="/spotai" element={<SpotAI />} />
             <Route path="/about" element={<About />} />
           </Route>

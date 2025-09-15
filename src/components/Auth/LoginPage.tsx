@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styles from "./LoginPage.module.css";
 import { useAuth } from "./AuthContext";
 import { useLocation, useNavigate } from "react-router-dom";
+import { ExclamationTriangle } from "react-bootstrap-icons";
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -62,6 +63,7 @@ const Login: React.FC = () => {
           ) : (
             "Login"
           )}</button>
+          <div className={styles.error2}> <ExclamationTriangle size={20} style={{ marginRight: "8px" }} />This website is hosted on free assets, which may result in long loading times.</div>
       </form>
     </div>
   );
