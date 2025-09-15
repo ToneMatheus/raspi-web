@@ -33,7 +33,9 @@ export async function getMe(): Promise<UserDto> {
     const msg = await safeMessage(res);
     throw new Error(msg || "Unauthorized");
   }
-  return (await res.json()) as UserDto;
+  // return (await res.json()) as UserDto;
+  const raw = await res.json() as { userId: string; username: string };
+  return { id: raw.userId, username: raw.username };
 }
 
 async function safeMessage(res: Response) {
