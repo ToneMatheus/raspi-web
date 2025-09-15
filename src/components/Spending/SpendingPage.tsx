@@ -12,7 +12,7 @@ import dollarLogo from '../../assets/dollar.svg';
 import styles from './Spending.module.css';
 import { getAllCanItemsUser, type CanItemUser} from '../../services/ItemConnection';
 import { createCanItemUser, deleteCanItemUser } from '../../services/ItemConnection';
-import { getAllCanBalances, getBalancesUser } from '../../services/BalanceConnection';
+import { getBalancesUser } from '../../services/BalanceConnection';
 // import trashIcon from '../../assets/trash3.svg';
 
 function SpendingPage() {
