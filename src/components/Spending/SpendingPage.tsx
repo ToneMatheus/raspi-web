@@ -13,10 +13,11 @@ import styles from './Spending.module.css';
 import { getAllCanItemsUser, type CanItemUser} from '../../services/ItemConnection';
 import { createCanItemUser, deleteCanItemUser } from '../../services/ItemConnection';
 import { getBalancesUser } from '../../services/BalanceConnection';
+import { getMe } from '../../services/Auth';
 // import trashIcon from '../../assets/trash3.svg';
 
 function SpendingPage() {
-  const userId = 2; // TODO: Replace with actual user ID from auth context
+  const [userId, setUserId] = useState(0); // TODO: Replace with actual user ID from auth context
   // const [can, setCan] = useState(false);
   // const [totalCan, setTotalCan] = useState(0);
   // const [myTotalCan] = useState<number>(500);
@@ -36,6 +37,18 @@ function SpendingPage() {
   // const [canTxns, setCanTxns] = useState<CanItem[]>([]);
   const [canUserTxns, setCanUserTxns] = useState<CanItemUser[]>([]);
  
+  const fetchUserId = async () => {
+    try {
+      const userIdvar = await getMe();
+      setUserId(parseInt(userIdvar.id));
+     
+    } catch (err) {
+      console.error('Failed to fetch user ID', err);
+    }
+  };
+
+  
+
   const fetchBalances = async () => {
     try {
       // const data = await getAllBalances();
@@ -82,6 +95,7 @@ function SpendingPage() {
   useEffect(() => {
     fetchBalances();
     fetchItems();
+    fetchUserId();
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
