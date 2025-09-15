@@ -11,7 +11,7 @@ const Login: React.FC = () => {
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = (location.state as any)?.from?.pathname || "/wedding";
+  const from = (location.state as any)?.from?.pathname || "/spending";
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
