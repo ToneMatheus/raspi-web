@@ -56,6 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const me = await getMe();
     setUser(me);
+    console.log("Signed in user:", me.id);
   };
 
   const signOut = () => {
