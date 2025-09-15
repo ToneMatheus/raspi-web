@@ -9,19 +9,18 @@ import { Alert, InputLabel } from '@mui/material';
 // import TextField from '@mui/material/TextField';
 // import reactLogo from '../../assets/react.svg';
 import dollarLogo from '../../assets/dollar.svg';
-import { getAllBalances, getAllCanBalances } from '../../services/BalanceConnection';
 import styles from './Spending.module.css';
-import type { CanItem, CanItemUser, Item } from '../../services/ItemConnection';
-import { createCanItem, createCanItemUser, createItem, deleteCanItem, deleteCanItemUser, deleteItem, getAllCanItems, getAllItems } from '../../services/ItemConnection';
+import { getAllCanItemsUser, type CanItemUser} from '../../services/ItemConnection';
+import { createCanItemUser, deleteCanItemUser } from '../../services/ItemConnection';
 // import trashIcon from '../../assets/trash3.svg';
 
 function SpendingPage() {
   const userId = 2; // TODO: Replace with actual user ID from auth context
   // const [can, setCan] = useState(false);
-  const [totalCan, setTotalCan] = useState(0);
-  const [myTotalCan] = useState<number>(500);
-  const [myTotalMoney] = useState<number>(15941.40);
-  const [totalMoney, setTotalMoney] = useState(0);
+  // const [totalCan, setTotalCan] = useState(0);
+  // const [myTotalCan] = useState<number>(500);
+  // const [myTotalMoney] = useState<number>(15941.40);
+  // const [totalMoney, setTotalMoney] = useState(0);
   const [totalCanUser, setTotalCanUser] = useState(0);
   const [myTotalCanUser] = useState<number>(1000);
   const [showModalAdd, setShowModalAdd] = useState(false);
@@ -32,21 +31,25 @@ function SpendingPage() {
     price: '',
     description: ''
   });
-  const [txns, setTxns] = useState<Item[]>([]);
-  const [canTxns, setCanTxns] = useState<CanItem[]>([]);
+  // const [txns, setTxns] = useState<Item[]>([]);
+  // const [canTxns, setCanTxns] = useState<CanItem[]>([]);
   const [canUserTxns, setCanUserTxns] = useState<CanItemUser[]>([]);
  
   const fetchBalances = async () => {
     try {
-      const data = await getAllBalances();
-      const canData = await getAllCanBalances();
+      // const data = await getAllBalances();
+      // const canData = await getAllCanBalances();
+      const canData = await getAllCanItemsUser(userId);
      
-      console.log('Fetched balances:', data);
-      if (data.length > 0) {
-        setTotalMoney(data[data.length - 1].total);
-      }
-      if (data.length > 0) {
-        setTotalCan(canData[canData.length - 1].total);
+      console.log('Fetched balances:', canData);
+      // if (data.length > 0) {
+      //   setTotalMoney(data[data.length - 1].total);
+      // }
+      // if (data.length > 0) {
+      //   setTotalCan(canData[canData.length - 1].total);
+      // }
+      if (canData.length > 0) {
+        setTotalCanUser(canData[canData.length - 1].total);
       }
     } catch (err) {
       console.error('Failed to fetch balance', err);
@@ -55,16 +58,20 @@ function SpendingPage() {
 
   const fetchItems = async () => {
     try {
-      const data = await getAllItems();
-      const canData = await getAllCanItems();
+      // const data = await getAllItems();
+      // const canData = await getAllCanItems();
+      const canUserData = await getAllCanItemsUser(userId);
      
-      console.log('Fetched items:', data);
-      console.log('Fetched items:', canData);
-      if (data.length > 0) {
-        setTxns(data);
-      }
-      if (canData.length > 0) {
-        setCanTxns(canData);
+      // console.log('Fetched items:', data);
+      // console.log('Fetched items:', canData);
+      // if (data.length > 0) {
+      //   setTxns(data);
+      // }
+      // if (canData.length > 0) {
+      //   setCanTxns(canData);
+      // }
+      if (canUserData.length > 0) {
+        setCanUserTxns(canUserData);
       }
     } catch (err) {
       console.error('Failed to fetch balance', err);
