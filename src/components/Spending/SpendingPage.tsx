@@ -125,7 +125,8 @@ const fetchItemsById = async (id: number) => {
       const payload = {
         price: parseFloat(formData.price),
         date: formData.date,
-        description: formData.description
+        description: formData.description,
+        userId: userId!
       };
 
       // Call your API
