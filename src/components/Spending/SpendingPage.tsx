@@ -17,7 +17,7 @@ import { getMe } from '../../services/Auth';
 // import trashIcon from '../../assets/trash3.svg';
 
 function SpendingPage() {
-  const [userId, setUserId] = useState(0); // TODO: Replace with actual user ID from auth context
+  const [userId, setUserId] = useState<number | null>(null);
   // const [can, setCan] = useState(false);
   // const [totalCan, setTotalCan] = useState(0);
   // const [myTotalCan] = useState<number>(500);
@@ -37,66 +37,42 @@ function SpendingPage() {
   // const [canTxns, setCanTxns] = useState<CanItem[]>([]);
   const [canUserTxns, setCanUserTxns] = useState<CanItemUser[]>([]);
  
-  const fetchUserId = async () => {
-    try {
-      const userIdvar = await getMe();
-      setUserId(parseInt(userIdvar.id));
-     
-    } catch (err) {
-      console.error('Failed to fetch user ID', err);
-    }
-  };
-
-  
-
-  const fetchBalances = async () => {
-    try {
-      // const data = await getAllBalances();
-      // const canData = await getAllCanBalances();
-      const canData = await getBalancesUser(userId);
-     
-      console.log('Fetched balances:', canData);
-      // if (data.length > 0) {
-      //   setTotalMoney(data[data.length - 1].total);
-      // }
-      // if (data.length > 0) {
-      //   setTotalCan(canData[canData.length - 1].total);
-      // }
-      if (canData.length > 0) {
-        setTotalCanUser(canData[canData.length - 1].total);
-      }
-    } catch (err) {
-      console.error('Failed to fetch balance', err);
-    }
-  };
-
-  const fetchItems = async () => {
-    try {
-      // const data = await getAllItems();
-      // const canData = await getAllCanItems();
-      const canUserData = await getAllCanItemsUser(userId);
-     
-      // console.log('Fetched items:', data);
-      // console.log('Fetched items:', canData);
-      // if (data.length > 0) {
-      //   setTxns(data);
-      // }
-      // if (canData.length > 0) {
-      //   setCanTxns(canData);
-      // }
-      if (canUserData.length > 0) {
-        setCanUserTxns(canUserData);
-      }
-    } catch (err) {
-      console.error('Failed to fetch balance', err);
-    }
-  };
-
   useEffect(() => {
-    fetchUserId();
-    fetchBalances();
-    fetchItems();
-  }, []);
+  (async () => {
+    try {
+      const me = await getMe();
+      const id = Number(me.id);
+      setUserId(id);
+
+      // run both with the local id to avoid the stale 0
+      await Promise.all([
+        fetchBalancesById(id),
+        fetchItemsById(id),
+      ]);
+    } catch (e) {
+      console.error('init load failed', e);
+    } finally {
+      setLoading(false);
+    }
+  })();
+}, []);
+  const fetchBalancesById = async (id: number) => {
+  try {
+    const canData = await getBalancesUser(id);
+    if (canData.length > 0) setTotalCanUser(canData[canData.length - 1].total);
+  } catch (err) {
+    console.error('Failed to fetch balance', err);
+  }
+};
+
+const fetchItemsById = async (id: number) => {
+  try {
+    const canUserData = await getAllCanItemsUser(id);
+    if (canUserData.length > 0) setCanUserTxns(canUserData);
+  } catch (err) {
+    console.error('Failed to fetch items', err);
+  }
+};
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { id, value } = e.target;
@@ -158,13 +134,13 @@ function SpendingPage() {
       // } else {
       //   await createItem(payload);
       // }
-      await createCanItemUser(payload, userId);
+      await createCanItemUser(payload, userId!);
 
       setToast({ type: 'success', message: 'Item added successfully!' });
 
       // Refresh data
-      await fetchItems();
-      await fetchBalances();
+      await fetchItemsById(userId!);
+      await fetchBalancesById(userId!);
 
       // Close modal and reset form
       setShowModalAdd(false);
@@ -200,10 +176,10 @@ function SpendingPage() {
       // {
       //   await deleteItem(itemId);  
       // }
-      await deleteCanItemUser(itemId, userId);  
+      await deleteCanItemUser(itemId, userId!);  
       setToast({ type: 'success', message: 'Item deleted successfully!' });
-      await fetchItems();  // Refresh after deletion
-      await fetchBalances();
+      await fetchItemsById(userId!);  // Refresh after deletion
+      await fetchBalancesById(userId!);
     } catch(err) {
       setToast({ type: 'error', message: 'Failed to delete item.' });
       console.error(err);
