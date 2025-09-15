@@ -93,9 +93,9 @@ function SpendingPage() {
   };
 
   useEffect(() => {
+    fetchUserId();
     fetchBalances();
     fetchItems();
-    fetchUserId();
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
