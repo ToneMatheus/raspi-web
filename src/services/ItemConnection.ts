@@ -129,57 +129,20 @@ export const getAllCanItemsUser = async (/*token: any*/userId: number) => {
     }
 };
 
-// export const createCanItemUser = async (/*token: any*/item :any,userId: number) : Promise<any> => {
-//     try {
-//         // console.log('getAllBalances ' + token);
-//         const response = await axios.post(`${API_BASE_URL}/canitemuser/create/${userId}`, item , {
-//             // headers: {
-//             //     Authorization: `Bearer ${token}`, 
-//             // },
-//         });
-//         return response.data;
-//     } catch (error) {
-//         console.error('There was an error fetching the items!', error);
-//         throw error;
-//     }
-// };
-
-export const createCanItemUser = async (item: any, userId: number): Promise<any> => {
-  try {
-    console.log("[createCanItemUser] userId:", userId);
-    console.log("[createCanItemUser] payload:", JSON.stringify(item, null, 2));
-
-    const response = await axios.post(
-      `${API_BASE_URL}/canitemuser/create/${userId}`,
-      item,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    console.log("[createCanItemUser] response status:", response.status);
-    console.log("[createCanItemUser] response data:", response.data);
-
-    return response.data;
-  } catch (error: any) {
-    if (error.response) {
-      // Server responded with an error
-      console.error("[createCanItemUser] ERROR status:", error.response.status);
-      console.error("[createCanItemUser] ERROR data:", error.response.data);
-      console.error("[createCanItemUser] ERROR headers:", error.response.headers);
-    } else if (error.request) {
-      // No response from server
-      console.error("[createCanItemUser] No response received:", error.request);
-    } else {
-      // Something wrong before request was sent
-      console.error("[createCanItemUser] Request setup error:", error.message);
+export const createCanItemUser = async (/*token: any*/item :any,userId: number) : Promise<any> => {
+    try {
+        // console.log('getAllBalances ' + token);
+        const response = await axios.post(`${API_BASE_URL}/canitemuser/create/${userId}`, item , {
+            // headers: {
+            //     Authorization: `Bearer ${token}`, 
+            // },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('There was an error fetching the items!', error);
+        throw error;
     }
-    throw error;
-  }
 };
-
 
 export const deleteCanItemUser = async (/*token: any*/itemId: number,userId: number) : Promise<any> => {
     try {
