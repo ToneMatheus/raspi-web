@@ -126,7 +126,7 @@ const fetchItemsById = async (id: number) => {
         price: parseFloat(formData.price),
         date: formData.date,
         description: formData.description,
-        // userId: userId!
+        userId: userId!
       };
 
       // Call your API
@@ -151,7 +151,7 @@ const fetchItemsById = async (id: number) => {
         description: ''
       });
     } catch (err) {
-      setToast({ type: 'error', message: `Failed to add item. Item looks like ${JSON.stringify(formData)}` });
+      setToast({ type: 'error', message: `Failed to add item.` });
       console.error(err);
     } finally {
       setLoading(false);

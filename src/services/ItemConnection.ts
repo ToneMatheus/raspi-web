@@ -129,10 +129,10 @@ export const getAllCanItemsUser = async (/*token: any*/userId: number) => {
     }
 };
 
-export const createCanItemUser = async (/*token: any*/item :any,userId: number) : Promise<any> => {
+export const createCanItemUser = async (/*token: any*/item :any) : Promise<any> => {
     try {
         // console.log('getAllBalances ' + token);
-        const response = await axios.post(`${API_BASE_URL}/canitemuser/create/${userId}`, item , {
+        const response = await axios.post(`${API_BASE_URL}/canitemuser/create/`, item , {
             // headers: {
             //     Authorization: `Bearer ${token}`, 
             // },
