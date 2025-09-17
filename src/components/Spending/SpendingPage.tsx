@@ -143,10 +143,16 @@ const fetchItemsById = async (id: number) => {
       await fetchItemsById(userId!);
       await fetchBalancesById(userId!);
 
+      // edit timezones
+      const today = new Date();
+      const localISODate = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, 10);
+
       // Close modal and reset form
       setShowModalAdd(false);
       setFormData({
-        date: new Date().toISOString().split('T')[0],
+        date: localISODate,
         price: '',
         description: ''
       });
