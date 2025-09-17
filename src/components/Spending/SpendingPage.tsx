@@ -151,7 +151,7 @@ const fetchItemsById = async (id: number) => {
         description: ''
       });
     } catch (err) {
-      setToast({ type: 'error', message: 'Failed to add item.' });
+      setToast({ type: 'error', message: `Failed to add item. Item looks like ${JSON.stringify(formData)}` });
       console.error(err);
     } finally {
       setLoading(false);
