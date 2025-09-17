@@ -135,7 +135,7 @@ const fetchItemsById = async (id: number) => {
       // } else {
       //   await createItem(payload);
       // }
-      await createCanItemUser(payload, userId!);
+      await createCanItemUser(payload);
 
       setToast({ type: 'success', message: 'Item added successfully!' });
 
