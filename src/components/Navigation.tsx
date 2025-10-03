@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from './Auth/AuthContext';
 
 const Navigation: React.FC = () => {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const { canAccess } = useAuth();
 
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
@@ -17,7 +19,7 @@ const Navigation: React.FC = () => {
     <nav className="navbar navbar-expand-md navbar-dark bg-dark">
       <div className="container">
         <Link className="navbar-brand" to="/" onClick={closeCollapse}>
-          Raspi-Web
+          Tone-Web
         </Link>
 
         {/* Search bar */}
@@ -55,22 +57,22 @@ const Navigation: React.FC = () => {
               </Link>
             </li>
             <li className="nav-item">
-              <Link 
+              {canAccess("wedding") &&<Link 
                 className={`nav-link ${location.pathname === '/wedding' ? 'active' : ''}`} 
                 to="/wedding"
                 onClick={closeCollapse}
               >
                 Wedding Page
-              </Link>
+              </Link>}
             </li>
             <li className="nav-item">
-              <Link 
+              {canAccess("spotai") &&<Link 
                 className={`nav-link ${location.pathname === '/spotai' ? 'active' : ''}`} 
                 to="/spotai"
                 onClick={closeCollapse}
               >
                 SpotAI
-              </Link>
+              </Link>}
             </li>
             <li className="nav-item">
               <Link 

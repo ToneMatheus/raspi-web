@@ -7,8 +7,47 @@
     animation: fadeInSlide 0.3s ease-out;
 }
 
-.customAccordionItem .accordion-button {
-  background-color: #f0c040 !important;
-  
+/* makes the top total feel obviously editable */
+.editableInputWrapper {
+  position: relative;
 }
 
+.editableHint {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.bigMoneyInput {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  max-width: 8ch;
+  text-align: center;
+  font-weight: normal;
+  line-height: 1;
+  cursor: text;
+  border-bottom: 2px dashed #ced4da; /* subtle underline */
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.bigMoneyInput:hover {
+  border-bottom-color: #adb5bd;
+}
+
+.bigMoneyInput:focus {
+  outline: none;
+  box-shadow: none;
+  border-bottom-color: #0d6efd; /* Bootstrap primary */
+  background-color: #fff8e1;    /* light hint background */
+}
+
+/* Keep your existing table override just in case it's used elsewhere */
+.table td {
+  border-color: #dee2e6 !important;
+}
+
+/* your existing custom accordion item color */
+.customAccordionItem .accordion-button {
+  background-color: #f0c040 !important;
+}

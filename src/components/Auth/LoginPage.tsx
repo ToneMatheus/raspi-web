@@ -15,8 +15,8 @@ const Login: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [checked, setChecked] = useState(false);
 
-  const DEMO_USERNAME = process.env.REACT_APP_DEMO_USERNAME || "";
-  const DEMO_PASSWORD = process.env.REACT_APP_DEMO_PASSWORD || "";
+const DEMO_USERNAME = import.meta.env.VITE_DEMO_USERNAME || "";
+const DEMO_PASSWORD = import.meta.env.VITE_DEMO_PASSWORD || "";
 
     const handleCheckedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const isChecked = e.target.checked;
@@ -82,12 +82,15 @@ const Login: React.FC = () => {
             "Login"
           )}</button>
           <div>
+             <label htmlFor="requestAccess" className={styles.inlineCheck}>
             <input
-            type="checkbox"
-            checked={checked} 
-            onChange={handleCheckedChange}
-          />
-           <label>Request access to view my portfolio</label>
+              id="requestAccess"
+              type="checkbox"
+              checked={checked}
+              onChange={handleCheckedChange}
+            />
+            Request access to portfolio
+          </label>
           </div>
           <div className={styles.error2}> <ExclamationTriangle size={20} style={{ marginRight: "8px" }} />This website is hosted on free assets, which may result in long loading times.</div>
       </form>

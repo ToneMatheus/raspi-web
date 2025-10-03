@@ -2,6 +2,18 @@ import axios from 'axios';
 
 const API_BASE_URL = `${import.meta.env.VITE_REACT_APP_BE_URL}/api`;
 
+export const resetCanUserState = async (userId: number, newBalance: number) => {
+  try {
+    await axios.post(`${API_BASE_URL}/canbalanceuser/reset`, {
+      userId,
+      newBalance
+    });
+  } catch (error) {
+    console.error('Reset failed', error);
+    throw error;
+  }
+};
+
 export const getAllBalances = async (/*token: any*/) => {
     try {
         // console.log('getAllBalances ' + token);

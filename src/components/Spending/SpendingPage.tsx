@@ -15,6 +15,7 @@ import { createCanItemUser, deleteCanItemUser } from '../../services/ItemConnect
 import { getBalancesUser } from '../../services/BalanceConnection';
 import { getMe } from '../../services/Auth';
 // import trashIcon from '../../assets/trash3.svg';
+import { resetCanUserState } from '../../services/BalanceConnection';
 
 function SpendingPage() {
   const [userId, setUserId] = useState<number | null>(null);
@@ -24,19 +25,31 @@ function SpendingPage() {
   // const [myTotalMoney] = useState<number>(15941.40);
   // const [totalMoney, setTotalMoney] = useState(0);
   const [totalCanUser, setTotalCanUser] = useState(0);
-  const [myTotalCanUser] = useState<number>(1000);
+  // const [myTotalCanUser] = useState<number>(1000);
   const [showModalAdd, setShowModalAdd] = useState(false);
   const [toast, setToast] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   const [loading, setLoading] = useState(false);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const nowForDatetimeLocal = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
   const [formData, setFormData] = useState({
-    date: new Date().toISOString().split('T')[0], 
+    date: nowForDatetimeLocal(),
     price: '',
     description: ''
   });
   // const [txns, setTxns] = useState<Item[]>([]);
   // const [canTxns, setCanTxns] = useState<CanItem[]>([]);
   const [canUserTxns, setCanUserTxns] = useState<CanItemUser[]>([]);
- 
+  const [myTotalCanUser, setMyTotalCanUser] = useState<string>('0.00');
+  const handleMyTotalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let v = e.target.value.replace(',', '.').replace(/[^0-9.]/g, '');
+    const parts = v.split('.');
+    if (parts.length > 2) v = parts[0] + '.' + parts[1];
+    setMyTotalCanUser(v);
+  };
+
   useEffect(() => {
   (async () => {
     try {
@@ -56,19 +69,60 @@ function SpendingPage() {
     }
   })();
 }, []);
-  const fetchBalancesById = async (id: number) => {
+
+const fetchBalancesById = async (id: number) => {
   try {
     const canData = await getBalancesUser(id);
-    if (canData.length > 0) setTotalCanUser(canData[canData.length - 1].total);
+
+    if (!Array.isArray(canData) || canData.length === 0) {
+      setTotalCanUser(0);        // current total
+      setMyTotalCanUser('0.00'); // target total (editable)
+      return;
+    }
+
+    // Helpers to sort safely
+    const getTime = (o: any, k: 'createdAt' | 'updatedAt') =>
+      o?.[k] ? new Date(o[k]).getTime() : null;
+
+    // Oldest = first added (prefer createdAt; fallback to smallest PK)
+    const byOldest = [...canData].sort((a: any, b: any) => {
+      const at = getTime(a, 'createdAt');
+      const bt = getTime(b, 'createdAt');
+      if (at != null && bt != null) return at - bt;
+      const ak = a.canBalanceUserId ?? a.id ?? Number.MAX_SAFE_INTEGER;
+      const bk = b.canBalanceUserId ?? b.id ?? Number.MAX_SAFE_INTEGER;
+      return ak - bk;
+    });
+    const target = byOldest[0]; // first-ever balance
+
+    // Newest = last/current (prefer updatedAt; fallback to largest PK)
+    const byNewest = [...canData].sort((a: any, b: any) => {
+      const at = getTime(a, 'updatedAt') ?? getTime(a, 'createdAt');
+      const bt = getTime(b, 'updatedAt') ?? getTime(b, 'createdAt');
+      if (at != null && bt != null) return bt - at;
+      const ak = a.canBalanceUserId ?? a.id ?? -1;
+      const bk = b.canBalanceUserId ?? b.id ?? -1;
+      return bk - ak;
+    });
+    const current = byNewest[0]; // latest balance
+
+    const targetTotal = Number(target?.total) || 0;
+    const currentTotal = Number(current?.total) || 0;
+
+    // UI states
+    setMyTotalCanUser(targetTotal.toFixed(2)); // the editable “Target total”
+    setTotalCanUser(currentTotal);             // the displayed “Current total”
   } catch (err) {
     console.error('Failed to fetch balance', err);
   }
 };
 
+
+
 const fetchItemsById = async (id: number) => {
   try {
     const canUserData = await getAllCanItemsUser(id);
-    if (canUserData.length > 0) setCanUserTxns(canUserData);
+    setCanUserTxns(canUserData); // no guard; [] will clear the UI
   } catch (err) {
     console.error('Failed to fetch items', err);
   }
@@ -96,7 +150,7 @@ const fetchItemsById = async (id: number) => {
 
       setFormData(prevState => ({
           ...prevState,
-          [id]: sanitizedValue,
+          [id]: sanitizedValue
       }));
   };
 
@@ -143,16 +197,10 @@ const fetchItemsById = async (id: number) => {
       await fetchItemsById(userId!);
       await fetchBalancesById(userId!);
 
-      // edit timezones
-      const today = new Date();
-      const localISODate = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
-        .toISOString()
-        .slice(0, 10);
-
       // Close modal and reset form
       setShowModalAdd(false);
       setFormData({
-        date: localISODate,
+        date: nowForDatetimeLocal(),
         price: '',
         description: ''
       });
@@ -201,15 +249,91 @@ const fetchItemsById = async (id: number) => {
           <a href="https://vite.dev" target="_blank" rel="noopener noreferrer">
            
           </a>
-          <a href="https://react.dev" target="_blank" rel="noopener noreferrer">
+          <a href="#" target="_blank" rel="noopener noreferrer">
             <img src={dollarLogo} className="logo react" alt="Dollar logo" style={{height: '6em'}} />
           </a>
         </div>
         
         {/* <h1 className="display-4 mb-4"> {can? <>&#36;{Number(myTotalCan).toFixed(2)}</> : <>&#8364;{Number(myTotalMoney).toFixed(2)}</>}</h1>
         <h1 className="display-4 mb-4"> {can? <>&#36;{Number(totalCan).toFixed(2)}</> : <>&#8364;{Number(totalMoney).toFixed(2)}</>}</h1> */}
-        <h1 className="display-4 mb-4"> {<>&#36;{Number(myTotalCanUser).toFixed(2)}</>}</h1>
-        <h1 className="display-4 mb-4"> {<>&#36;{Number(totalCanUser).toFixed(2)}</>}</h1>
+{/* Totals Card */}
+<div className="d-flex justify-content-center my-4">
+  <Card className="w-100 text-center" style={{ maxWidth: '420px' }}>
+    <Card.Body className="py-4">
+      <div className="mb-3">
+        <div className="d-flex align-items-center justify-content-center gap-2">
+          <span className="fs-5 text-muted">Target total</span>
+          {/* <span className="badge bg-warning text-dark">editable</span> */}
+        </div>
+
+        
+
+        <div className={`d-inline-flex align-items-center justify-content-center mt-2 ${styles.editableInputWrapper}`}>
+          <span className="me-1 display-6">$</span>
+          <input
+            id="myTotalCanUser"
+            type="text"
+            value={myTotalCanUser}
+            onChange={handleMyTotalChange}
+            onBlur={() => {
+              const n = parseFloat(myTotalCanUser || '0');
+              setMyTotalCanUser(isNaN(n) ? '0.00' : n.toFixed(2));
+            }}
+            onKeyDown={async (e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault(); // stop form submission or unwanted side-effects
+                const parsed = parseFloat((myTotalCanUser || '0').replace(',', '.'));
+                if (Number.isNaN(parsed)) {
+                  setToast({ type: 'error', message: 'Please enter a valid number for the target total.' });
+                  return;
+                }
+
+                try {
+                  setLoading(true);
+                  await resetCanUserState(userId!, parsed);
+                  setToast({ type: 'success', message: 'Account reset. Current total updated.' });
+
+                  // Refresh data
+                  await fetchItemsById(userId!);
+                  await fetchBalancesById(userId!);
+                } catch (err) {
+                  setToast({ type: 'error', message: 'Failed to reset. Please try again.' });
+                  console.error(err);
+                } finally {
+                  setLoading(false);
+                }
+              }
+            }}
+            className={`display-6 text-center ${styles.bigMoneyInput}`}
+            aria-label="Edit your target total"
+            aria-describedby="targetHelp"
+          />
+          <i
+            className="bi bi-pencil-square ms-2"
+            aria-hidden="true"
+            title="Click the number to edit"
+          ></i>
+        </div>
+
+        <div id="targetHelp" className={`mt-2 ${styles.editableHint}`}>
+          Click the number to edit your target
+        </div>
+      </div>
+
+      <hr className="my-3" />
+
+      <div>
+        <div className="fs-6 text-muted">Current total</div>
+        <div className="display-6">${Number(totalCanUser).toFixed(2)}</div>
+      </div>
+    </Card.Body>
+  </Card>
+</div>
+
+
+
+
+       
         {/* <Btn variant="primary" className="mb-4" onClick={() => setCan(!can)}>
           Canadian 
         </Btn> */}
@@ -218,7 +342,10 @@ const fetchItemsById = async (id: number) => {
           <div className="card-body">
             <button 
               className="btn btn-primary btn-lg mb-3" 
-              onClick={() => setShowModalAdd(true)}
+              onClick={() => {
+                setFormData(f => ({ ...f, date: nowForDatetimeLocal() }));
+                setShowModalAdd(true);
+              }}
             >
               Add Item
             </button>
@@ -282,7 +409,7 @@ const fetchItemsById = async (id: number) => {
           <InputLabel style={{ color: "black" }}>Date</InputLabel>
           <Form.Control
             id="date" 
-            type="date"
+            type="datetime-local"
             value={formData.date}
             // placeholder={textContent.priceInputPlaceholder}
             // isInvalid={!!errors.price}
