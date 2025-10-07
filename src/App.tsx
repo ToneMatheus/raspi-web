@@ -9,6 +9,7 @@ import { AuthProvider, useAuth } from "./components/Auth/AuthContext";
 import { RequireAuth } from "./components/Auth/RequireAuth";
 import LayoutWithNav from './components/LayoutWithNav'
 import SpendingPage from './components/Spending/SpendingPage'
+import Reader from './components/Reader/Reader'
 
 
 
@@ -38,6 +39,7 @@ function AppRoutes() {
         />
 
         {/* Always accessible */}
+        <Route path="/reader" element={<Reader />} />
         <Route path="/spending" element={<SpendingPage />} />
         <Route path="/about" element={<About />} />
       </Route>
