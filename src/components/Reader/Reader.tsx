@@ -18,19 +18,33 @@ function toBinaryCode(imageData: ImageData, opts: BinaryOptions): string {
       const r = data[i];
       const g = data[i + 1];
       const b = data[i + 2];
-      // const a = data[i + 3]; // available if needed
-
-      // perceived luminance (sRGB)
       const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
       const isBlack = luminance < threshold;
       const bit = invert ? (isBlack ? "0" : "1") : (isBlack ? "1" : "0");
       line += bit;
-
       i += 4;
     }
     lines.push(line);
   }
   return lines.join("\n");
+}
+
+// Converts binary text (rows of 1s/0s) to ASCII letters
+function binaryToAscii(binaryText: string): string {
+  const cleanBinary = binaryText.replace(/\s+/g, ""); // remove newlines
+  let result = "";
+
+  for (let i = 0; i < cleanBinary.length; i += 8) {
+    const byte = cleanBinary.slice(i, i + 8);
+    if (byte.length < 8) break; // ignore incomplete byte
+    const charCode = parseInt(byte, 2);
+    if (!isNaN(charCode)) {
+      const char = String.fromCharCode(charCode);
+      result += char;
+    }
+  }
+
+  return result;
 }
 
 async function loadIntoCanvas(
@@ -41,9 +55,7 @@ async function loadIntoCanvas(
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
   if (!ctx) throw new Error("2D canvas context unavailable");
 
-  // Prefer createImageBitmap to honor EXIF orientation and decode off-main-thread
   let bmp: ImageBitmap | null = null;
-
   if ("createImageBitmap" in window) {
     try {
       bmp = await createImageBitmap(file, { imageOrientation: "from-image" as ImageOrientation });
@@ -55,9 +67,8 @@ async function loadIntoCanvas(
   if (bmp) {
     const scale =
       downscaleMaxWidth ? Math.min(1, downscaleMaxWidth / bmp.width) : 1;
-    const w = Math.max(1, Math.round(bmp.width * scale));
-    const h = Math.max(1, Math.round(bmp.height * scale));
-
+    const w = Math.round(bmp.width * scale);
+    const h = Math.round(bmp.height * scale);
     canvas.width = w;
     canvas.height = h;
     ctx.drawImage(bmp, 0, 0, w, h);
@@ -65,7 +76,6 @@ async function loadIntoCanvas(
     return;
   }
 
-  // Fallback: HTMLImageElement
   const url = URL.createObjectURL(file);
   const img = new Image();
   img.decoding = "async";
@@ -74,13 +84,11 @@ async function loadIntoCanvas(
 
   const scale =
     downscaleMaxWidth ? Math.min(1, downscaleMaxWidth / img.naturalWidth) : 1;
-  const w = Math.max(1, Math.round(img.naturalWidth * scale));
-  const h = Math.max(1, Math.round(img.naturalHeight * scale));
-
+  const w = Math.round(img.naturalWidth * scale);
+  const h = Math.round(img.naturalHeight * scale);
   canvas.width = w;
   canvas.height = h;
   ctx.drawImage(img, 0, 0, w, h);
-
   URL.revokeObjectURL(url);
 }
 
@@ -88,11 +96,12 @@ const Reader: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [binaryCode, setBinaryCode] = useState<string>("");
+  const [asciiCode, setAsciiCode] = useState<string>("");
   const [threshold, setThreshold] = useState<number>(128);
   const [invert, setInvert] = useState<boolean>(false);
   const [processing, setProcessing] = useState<boolean>(false);
 
-  // revoke preview object URLs on unmount or change
+  // Clean up preview URL
   useEffect(() => {
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -106,8 +115,9 @@ const Reader: React.FC = () => {
     if (!ctx) return;
 
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const code = toBinaryCode(imageData, { threshold, invert });
-    setBinaryCode(code);
+    const binary = toBinaryCode(imageData, { threshold, invert });
+    setBinaryCode(binary);
+    setAsciiCode(binaryToAscii(binary));
   }, [threshold, invert]);
 
   const handleFileChange = useCallback(
@@ -120,9 +130,9 @@ const Reader: React.FC = () => {
         const canvas = canvasRef.current;
         if (!canvas) return;
 
-        await loadIntoCanvas(file, canvas, /* downscaleMaxWidth */ 1024);
+        await loadIntoCanvas(file, canvas, 512);
 
-        // Create a preview image from the canvas (so it matches any downscale/orientation)
+        // Create a preview
         canvas.toBlob(
           (blob) => {
             if (!blob) return;
@@ -136,7 +146,6 @@ const Reader: React.FC = () => {
           0.92
         );
 
-        // Build binary code immediately
         processCanvas();
       } finally {
         setProcessing(false);
@@ -150,14 +159,10 @@ const Reader: React.FC = () => {
     return URL.createObjectURL(blob);
   }, [binaryCode]);
 
-  const columns = useMemo(
-    () => (binaryCode ? binaryCode.split("\n")[0]?.length ?? 0 : 0),
-    [binaryCode]
-  );
-  const rows = useMemo(
-    () => (binaryCode ? binaryCode.split("\n").length : 0),
-    [binaryCode]
-  );
+  const asciiDownloadHref = useMemo(() => {
+    const blob = new Blob([asciiCode], { type: "text/plain;charset=utf-8" });
+    return URL.createObjectURL(blob);
+  }, [asciiCode]);
 
   return (
     <div style={{ display: "grid", gap: 12, maxWidth: 900 }}>
@@ -182,12 +187,17 @@ const Reader: React.FC = () => {
           Invert (white=1, black=0)
         </label>
         <button onClick={processCanvas} disabled={processing || !previewUrl}>
-          Rebuild Code
+          Rebuild
         </button>
         {binaryCode && (
-          <a href={downloadHref} download="image_binary.txt">
-            Download .txt
-          </a>
+          <>
+            <a href={downloadHref} download="image_binary.txt">
+              Binary .txt
+            </a>
+            <a href={asciiDownloadHref} download="image_ascii.txt">
+              ASCII .txt
+            </a>
+          </>
         )}
       </div>
 
@@ -195,7 +205,7 @@ const Reader: React.FC = () => {
 
       {previewUrl && (
         <div>
-          <p style={{ margin: 0 }}>Preview (processed size):</p>
+          <p>Preview image:</p>
           <img
             src={previewUrl}
             alt="preview"
@@ -204,27 +214,35 @@ const Reader: React.FC = () => {
         </div>
       )}
 
-      {/* Hidden canvas used for pixel access */}
       <canvas ref={canvasRef} style={{ display: "none" }} />
 
       <div style={{ display: "grid", gap: 6 }}>
-        <p style={{ margin: 0 }}>
-          Binary code (rows top→bottom, cols left→right):{" "}
-          <em>
-            {columns} columns × {rows} rows
-          </em>
-        </p>
+        <p style={{ margin: 0 }}>Binary Output:</p>
         <textarea
           value={binaryCode}
           readOnly
           spellCheck={false}
           style={{
             width: "100%",
-            minHeight: 240,
-            fontFamily:
-              "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+            minHeight: 200,
+            fontFamily: "monospace",
             whiteSpace: "pre",
-            overflow: "auto",
+          }}
+        />
+      </div>
+
+      <div style={{ display: "grid", gap: 6 }}>
+        <p style={{ margin: 0 }}>ASCII Conversion (8 bits per char):</p>
+        <textarea
+          value={asciiCode}
+          readOnly
+          spellCheck={false}
+          style={{
+            width: "100%",
+            minHeight: 200,
+            fontFamily: "monospace",
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-all",
           }}
         />
       </div>
