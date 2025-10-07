@@ -5,6 +5,41 @@ type BinaryOptions = {
   invert: boolean;   // if true: white=1, black=0
 };
 
+type DecodeMode = "mono" | "wcmYKRGB";
+
+const PALETTE = {
+  White:  "#ffffff",
+  Cyan:   "#00aeef",
+  Magenta:"#ec008c",
+  Yellow: "#fff200",
+  Black:  "#000000",
+  Red:    "#ed1c24",
+  Green:  "#00a651",
+  Blue:   "#2e3192",
+} as const;
+
+const ORDER_WCMYKRGB = ["White", "Cyan", "Magenta", "Yellow", "Black", "Red", "Green", "Blue"] as const;
+type PaletteName = typeof ORDER_WCMYKRGB[number];
+
+function hexToRgb(hex: string): [number, number, number] {
+  const h = hex.replace("#", "");
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return [r, g, b];
+}
+
+const PALETTE_RGB: Record<PaletteName, [number, number, number]> = {
+  White:  hexToRgb(PALETTE.White),
+  Cyan:   hexToRgb(PALETTE.Cyan),
+  Magenta:hexToRgb(PALETTE.Magenta),
+  Yellow: hexToRgb(PALETTE.Yellow),
+  Black:  hexToRgb(PALETTE.Black),
+  Red:    hexToRgb(PALETTE.Red),
+  Green:  hexToRgb(PALETTE.Green),
+  Blue:   hexToRgb(PALETTE.Blue),
+};
+
 function toBinaryCode(imageData: ImageData, opts: BinaryOptions): string {
   const { data, width, height } = imageData;
   const { threshold, invert } = opts;
@@ -65,8 +100,7 @@ async function loadIntoCanvas(
   }
 
   if (bmp) {
-    const scale =
-      downscaleMaxWidth ? Math.min(1, downscaleMaxWidth / bmp.width) : 1;
+    const scale = downscaleMaxWidth ? Math.min(1, downscaleMaxWidth / bmp.width) : 1;
     const w = Math.round(bmp.width * scale);
     const h = Math.round(bmp.height * scale);
     canvas.width = w;
@@ -82,14 +116,40 @@ async function loadIntoCanvas(
   img.src = url;
   await img.decode();
 
-  const scale =
-    downscaleMaxWidth ? Math.min(1, downscaleMaxWidth / img.naturalWidth) : 1;
+  const scale = downscaleMaxWidth ? Math.min(1, downscaleMaxWidth / img.naturalWidth) : 1;
   const w = Math.round(img.naturalWidth * scale);
   const h = Math.round(img.naturalHeight * scale);
   canvas.width = w;
   canvas.height = h;
   ctx.drawImage(img, 0, 0, w, h);
   URL.revokeObjectURL(url);
+}
+
+/** EXACT-HEX ONLY decode: 1 if pixel equals expected W/C/M/Y/K/R/G/B color, else 0. */
+function decodeWCMYKRGBExact(imageData: ImageData): string {
+  const { data, width, height } = imageData;
+  const totalPixels = width * height;
+  const numFullBytes = Math.floor(totalPixels / 8);
+
+  let bits = "";
+  let i = 0; // RGBA cursor
+
+  for (let byteIdx = 0; byteIdx < numFullBytes; byteIdx++) {
+    for (let bitPos = 0; bitPos < 8; bitPos++) {
+      const expected: PaletteName = ORDER_WCMYKRGB[bitPos];
+      const [er, eg, eb] = PALETTE_RGB[expected];
+
+      const r = data[i], g = data[i + 1], b = data[i + 2];
+      // exact hex match only:
+      const isOne = (r === er && g === eg && b === eb) ? "1" : "0";
+      bits += isOne;
+
+      i += 4; // advance 1 pixel (skip alpha)
+    }
+  }
+
+  // ignore leftover pixels (<8) at the end
+  return bits;
 }
 
 const Reader: React.FC = () => {
@@ -100,8 +160,10 @@ const Reader: React.FC = () => {
   const [threshold, setThreshold] = useState<number>(128);
   const [invert, setInvert] = useState<boolean>(false);
   const [processing, setProcessing] = useState<boolean>(false);
+  const [mode, setMode] = useState<DecodeMode>("mono");
+  const [lastDims, setLastDims] = useState<{ w: number; h: number } | null>(null);
+  const [zoom, setZoom] = useState(20);
 
-  // Clean up preview URL
   useEffect(() => {
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -115,10 +177,18 @@ const Reader: React.FC = () => {
     if (!ctx) return;
 
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const binary = toBinaryCode(imageData, { threshold, invert });
-    setBinaryCode(binary);
-    setAsciiCode(binaryToAscii(binary));
-  }, [threshold, invert]);
+    setLastDims({ w: canvas.width, h: canvas.height });
+
+    if (mode === "mono") {
+      const binary = toBinaryCode(imageData, { threshold, invert });
+      setBinaryCode(binary);
+      setAsciiCode(binaryToAscii(binary));
+    } else {
+      const bits = decodeWCMYKRGBExact(imageData);
+      setBinaryCode(bits);
+      setAsciiCode(binaryToAscii(bits));
+    }
+  }, [threshold, invert, mode]);
 
   const handleFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -132,7 +202,6 @@ const Reader: React.FC = () => {
 
         await loadIntoCanvas(file, canvas, 512);
 
-        // Create a preview
         canvas.toBlob(
           (blob) => {
             if (!blob) return;
@@ -168,27 +237,43 @@ const Reader: React.FC = () => {
     <div style={{ display: "grid", gap: 12, maxWidth: 900 }}>
       <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
         <input type="file" accept="image/*" onChange={handleFileChange} />
+
+        {/* Mode switch */}
         <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          Threshold: <strong>{threshold}</strong>
-          <input
-            type="range"
-            min={0}
-            max={255}
-            value={threshold}
-            onChange={(e) => setThreshold(Number(e.currentTarget.value))}
-          />
+          Mode:
+          <select value={mode} onChange={(e) => setMode(e.currentTarget.value as DecodeMode)}>
+            <option value="mono">Monochrome</option>
+            <option value="wcmYKRGB">Color</option>
+          </select>
         </label>
-        <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <input
-            type="checkbox"
-            checked={invert}
-            onChange={(e) => setInvert(e.currentTarget.checked)}
-          />
-          Invert (white=1, black=0)
-        </label>
+
+        {mode === "mono" && (
+          <>
+            <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              Threshold: <strong>{threshold}</strong>
+              <input
+                type="range"
+                min={0}
+                max={255}
+                value={threshold}
+                onChange={(e) => setThreshold(Number(e.currentTarget.value))}
+              />
+            </label>
+            <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <input
+                type="checkbox"
+                checked={invert}
+                onChange={(e) => setInvert(e.currentTarget.checked)}
+              />
+              Invert (white=1, black=0)
+            </label>
+          </>
+        )}
+
         <button onClick={processCanvas} disabled={processing || !previewUrl}>
           Rebuild
         </button>
+
         {binaryCode && (
           <>
             <a href={downloadHref} download="image_binary.txt">
@@ -203,16 +288,40 @@ const Reader: React.FC = () => {
 
       {processing && <div>Processing…</div>}
 
-      {previewUrl && (
+        {previewUrl && (
         <div>
-          <p>Preview image:</p>
-          <img
-            src={previewUrl}
-            alt="preview"
-            style={{ maxWidth: "100%", border: "1px solid #ddd" }}
-          />
+            <p>
+            Preview image{lastDims ? ` (${lastDims.w}×${lastDims.h})` : ""} – Zoom:
+            <input
+                type="number"
+                min={1}
+                max={20}
+                value={zoom}
+                onChange={(e) => setZoom(Number(e.currentTarget.value))}
+                style={{ width: 60, marginLeft: 8 }}
+            />x
+            </p>
+            <div
+            style={{
+                overflow: "auto",
+                border: "1px solid #ddd",
+                width: "100%",
+            }}
+            >
+            <img
+                src={previewUrl}
+                alt="preview"
+                style={{
+                imageRendering: "pixelated",
+                width: lastDims ? lastDims.w * zoom : "auto",
+                height: lastDims ? lastDims.h * zoom : "auto",
+                display: "block",
+                }}
+            />
+            </div>
         </div>
-      )}
+        )}
+
 
       <canvas ref={canvasRef} style={{ display: "none" }} />
 
