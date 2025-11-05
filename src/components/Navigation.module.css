@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Bitcount+Prop+Single+Ink:wght@100..900&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
+.navbarTitle {
+  font-family: "Bitcount Prop Single Ink", sans-serif;
+  font-size: 40px;
+}
+
+
+.workSans {
+  font-family: "Work Sans", sans-serif;
+ 
+}
+
+/* Custom Navbar */
+.customNavbar {
+  background-color: #010001 !important;  /* Deep black background */
+  position: relative;
+  border: none; /* White border */
+  z-index: 10;
+  border-radius: 0 0 20px 20px; /* Optional soft bottom curve */
+  overflow: hidden; /* Ensures the pseudo-element doesn’t spill over */
+  padding: 2px;
+}
+
+/* Thin curved white line at the bottom */
+.customNavbar::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0px; /* Thickness of the line */
+  background: white;
+  border-radius: 50% / 100%; /* Creates a subtle curve */
+  transform: scaleY(0.6); /* Adjust curvature strength */
+  
+}
+
+/* Navigation link styling */
+.navLink {
+  position: relative;
+  color: gray;
+  margin: 0 8px;
+  padding: 8px 16px;
+  border-radius: 20px; /* Rounded button look */
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+/* Underline only under text */
+.navLink::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background-color: white;
+  border-radius: 2px;
+  transform: translateX(-50%);
+  transition: width 0.3s ease;
+  color:white;
+}
+
+/* Hover and active effects 
+.navLink:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}*/
+.navLink.active {
+  color: white; /* optional highlight for current page */
+}
+
+.navLink:hover::after,
+.navLink.active::after {
+  width: 60%;
+  color:white;
+}
+

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from './Auth/AuthContext';
+import styles from './Navigation.module.css';
 
 const Navigation: React.FC = () => {
   const location = useLocation();
@@ -16,10 +17,10 @@ const Navigation: React.FC = () => {
   };
 
   return (
-    <nav className="navbar navbar-expand-md navbar-dark bg-dark">
-      <div className="container">
-        <Link className="navbar-brand" to="/" onClick={closeCollapse}>
-          Tone-Web
+    <nav className={`navbar navbar-expand-md navbar-dark ${styles.customNavbar}`}>
+      <div className="container-fluid px-md-5" style={{ maxWidth: '66.6667%', margin: '0 auto' }}>
+        <Link className={styles.navbarTitle} to="/" onClick={closeCollapse}>
+          TONYDEV
         </Link>
 
         {/* Search bar */}
@@ -46,19 +47,19 @@ const Navigation: React.FC = () => {
         </button>
         
         <div className={`collapse navbar-collapse ${!isCollapsed ? 'show' : ''}`} id="navbarNav">
-          <ul className="navbar-nav ms-auto">
-            <li className="nav-item">
-              <Link 
-                className={`nav-link ${location.pathname === '/reader' ? 'active' : ''}`} 
+          <ul className={`navbar-nav ms-auto ${styles.workSans}`}>
+              <li className="nav-item">
+              {canAccess("reader") &&<Link 
+                className={`${styles.navLink} nav-link ${location.pathname === '/reader' ? 'active' : ''}`} 
                 to="/reader"
                 onClick={closeCollapse}
               >
                 Readers Page
-              </Link>
+              </Link>}
             </li>
             <li className="nav-item">
               <Link 
-                className={`nav-link ${location.pathname === '/spending' ? 'active' : ''}`} 
+                className={`${styles.navLink} nav-link ${location.pathname === '/spending' ? 'active' : ''}`} 
                 to="/spending"
                 onClick={closeCollapse}
               >
@@ -67,7 +68,7 @@ const Navigation: React.FC = () => {
             </li>
             <li className="nav-item">
               {canAccess("wedding") &&<Link 
-                className={`nav-link ${location.pathname === '/wedding' ? 'active' : ''}`} 
+                className={`${styles.navLink} nav-link ${location.pathname === '/wedding' ? 'active' : ''}`} 
                 to="/wedding"
                 onClick={closeCollapse}
               >
@@ -76,27 +77,28 @@ const Navigation: React.FC = () => {
             </li>
             <li className="nav-item">
               {canAccess("spotai") &&<Link 
-                className={`nav-link ${location.pathname === '/spotai' ? 'active' : ''}`} 
+                className={`${styles.navLink} nav-link ${location.pathname === '/spotai' ? 'active' : ''}`} 
                 to="/spotai"
                 onClick={closeCollapse}
               >
                 SpotAI
               </Link>}
             </li>
-            <li className="nav-item">
+            {/* <li className="nav-item">
               <Link 
-                className={`nav-link ${location.pathname === '/about' ? 'active' : ''}`} 
+                className={`${styles.navLink} nav-link ${location.pathname === '/about' ? 'active' : ''}`} 
                 to="/about"
                 onClick={closeCollapse}
               >
                 About
               </Link>
-            </li>
+            </li> */}
           </ul>
         </div>
       </div>
     </nav>
   );
 };
+
 
 export default Navigation;

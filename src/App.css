@@ -2,6 +2,7 @@
   width: 100%;
   min-height: 100vh;
 }
+body { margin: 0; background: #000; }
 
 .App {
   min-height: 100vh;

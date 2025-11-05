@@ -1,3 +1,29 @@
+.card {
+  display: flex;
+  gap: 1.5rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+  color:white;
+}
+
+.centerWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.wideCard {
+  width: 100%;
+  max-width: 800px; /* increase or decrease as you prefer */
+  margin: 0 auto;
+}
+
 .successToast {
     position: fixed;
     top: 20px;

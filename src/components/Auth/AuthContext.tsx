@@ -12,7 +12,7 @@ type AuthContextValue = {
   isGuest: boolean;
   isAdmin: boolean;
     /** Optional helper for feature gating in UI/routing */
-  canAccess: (feature: "spending" | "wedding" | "spotai" | "about") => boolean;
+  canAccess: (feature: "spending" | "wedding" | "spotai" | "about" | "reader") => boolean;
   signIn: (username: string, password: string) => Promise<void>;
   signOut: () => void;
 };
@@ -39,6 +39,7 @@ const featureAccess = (args: { isGuest: boolean; isAdmin: boolean }) => ({
   wedding: args.isAdmin,  // guests cannot access
   spotai: args.isAdmin,   // guests cannot access
   about: true,
+  reader: args.isAdmin,   // guests cannot access
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

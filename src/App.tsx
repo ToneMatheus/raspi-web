@@ -1,7 +1,7 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 // import Navigation from './components/Navigation'
 import WeddingPage from './components/Wedding/WeddingPage'
-import About from './components/About'
+import About from './components/AboutMe/About'
 import './App.css'
 import SpotAI from './components/SpotAI'
 import LoginPage from './components/Auth/LoginPage'
@@ -11,37 +11,35 @@ import LayoutWithNav from './components/LayoutWithNav'
 import SpendingPage from './components/Spending/SpendingPage'
 import Reader from './components/Reader/Reader'
 
-
-
 function AppRoutes() {
   const { canAccess } = useAuth();               
   return (
     <Routes>
-      {/* Public route */}
-      <Route path="/" element={<LoginPage />} />
+      {/* Use LayoutWithNav as the top-level layout so the background video is shown on public pages like About */}
+      <Route element={<LayoutWithNav />}>
+        {/* About as the root (index) page */}
+        <Route index element={<About />} />
 
-      {/* Protected routes (require login + nav) */}
-      <Route
-        element={
-          <RequireAuth>
-            <LayoutWithNav />
-          </RequireAuth>
-        }
-      >
-        {/* Feature-gated routes */}
-        <Route
-          path="/wedding"
-          element={canAccess("wedding") ? <WeddingPage /> : <Navigate to="/about" replace />}
-        />
-        <Route
-          path="/spotai"
-          element={canAccess("spotai") ? <SpotAI /> : <Navigate to="/about" replace />}
-        />
+        {/* Always accessible pages inside the layout */}
+        <Route path="spending" element={<SpendingPage />} />
 
-        {/* Always accessible */}
-        <Route path="/reader" element={<Reader />} />
-        <Route path="/spending" element={<SpendingPage />} />
-        <Route path="/about" element={<About />} />
+        {/* Protected routes: require auth, then feature gating */}
+        <Route
+          element={<RequireAuth><Outlet /></RequireAuth>}
+        >
+          <Route
+            path="wedding"
+            element={canAccess("wedding") ? <WeddingPage /> : <Navigate to="/" replace />}
+          />
+          <Route
+            path="spotai"
+            element={canAccess("spotai") ? <SpotAI /> : <Navigate to="/" replace />}
+          />
+          <Route
+            path="reader"
+            element={canAccess("reader") ? <Reader /> : <Navigate to="/" replace />}
+          />
+        </Route>
       </Route>
     </Routes>
   );

@@ -1,0 +1,42 @@
+.card {
+  display: flex;
+  gap: 1.5rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+}
+
+.avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+}
+
+.name {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #9d4c9d;
+}
+
+.bio {
+  margin-top: 0.5rem;
+  color: #bcbcbc;
+  line-height: 1.5;
+}
+
+.location {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #aaa;
+  margin-top: 0.5rem;
+}
+
+.jobs {
+  margin-top: 1rem;
+  list-style: none;
+  color: #ccc;
+  font-size: 0.95rem;
+}
