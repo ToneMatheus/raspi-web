@@ -4,12 +4,13 @@ import WeddingPage from './components/Wedding/WeddingPage'
 import About from './components/AboutMe/About'
 import './App.css'
 import SpotAI from './components/SpotAI'
-import LoginPage from './components/Auth/LoginPage'
+// import LoginPage from './components/Auth/LoginPage'
 import { AuthProvider, useAuth } from "./components/Auth/AuthContext";
 import { RequireAuth } from "./components/Auth/RequireAuth";
 import LayoutWithNav from './components/LayoutWithNav'
 import SpendingPage from './components/Spending/SpendingPage'
 import Reader from './components/Reader/Reader'
+import QtTest from './components/QtTest'
 
 function AppRoutes() {
   const { canAccess } = useAuth();               
@@ -22,7 +23,16 @@ function AppRoutes() {
 
         {/* Always accessible pages inside the layout */}
         <Route path="spending" element={<SpendingPage />} />
-
+        
+        {/*<Route
+          path="moneybalance"
+          element={<Navigate to="/Qt/MoneyBalance.html" replace />}
+        />*/}
+        
+        <Route
+          path="moneybalance"
+          element={<QtTest/>}
+        />
         {/* Protected routes: require auth, then feature gating */}
         <Route
           element={<RequireAuth><Outlet /></RequireAuth>}

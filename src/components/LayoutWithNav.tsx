@@ -1,6 +1,6 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
-import Navigation from "./Navigation";
+// import Navigation from "./Navigation";
 import BackgroundVideo from './BackgroundVideo';
 
 const LayoutWithNav: React.FC = () => {

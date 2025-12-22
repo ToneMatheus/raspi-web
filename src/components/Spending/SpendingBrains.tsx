@@ -333,7 +333,7 @@ const fetchItemsById = async (id: number) => {
       <hr className="my-3" />
 
       <div>
-        <div className="fs-6 text-muted">Current total</div>
+        <div className="fs-6">Current total</div>
         <div className="display-6">${Number(totalCanUser).toFixed(2)}</div>
       </div>
     </Card.Body>
@@ -401,9 +401,9 @@ const fetchItemsById = async (id: number) => {
             </Accordion>
           </div>
         </div>
-        
-        <p className=" mt-4">
-          This Web Application is built by Tone 
+
+        <p className=" mt-4" style={{color: '#cddd0a'}}>
+          This Web Application is built by Tone
         </p>
       </div>
     </div>
