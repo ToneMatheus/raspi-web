@@ -11,6 +11,7 @@ import LayoutWithNav from './components/LayoutWithNav'
 import SpendingPage from './components/Spending/SpendingPage'
 import Reader from './components/Reader/Reader'
 import QtTest from './components/QtTest'
+import QtHobbyCount from './components/QtHobbyCount'
 
 function AppRoutes() {
   const { canAccess } = useAuth();               
@@ -33,6 +34,7 @@ function AppRoutes() {
           path="moneybalance"
           element={<QtTest/>}
         />
+        <Route path="hobbycount" element={<QtHobbyCount />} />
         {/* Protected routes: require auth, then feature gating */}
         <Route
           element={<RequireAuth><Outlet /></RequireAuth>}
