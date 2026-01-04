@@ -1,0 +1,55 @@
+.card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+}
+
+h3 {
+  color: #cddd0a;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.ab {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  color: #e5e5e5;
+  cursor: pointer;
+}
+/* dropdown wrapper 
+.dropdown {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  opacity: 0;
+  display: flex;
+  justify-content: center;
+}*/
+
+/* when open */
+
+
+/* image size 
+.dropdown img {
+  width: 300px;      
+  margin-top: 0.8rem;
+  border-radius: 6px;
+}*/
+
+.ab:hover {
+  background: rgba(255,255,255,0.1);
+}

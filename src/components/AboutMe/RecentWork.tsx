@@ -3,8 +3,8 @@ import styles from "./RecentWork.module.css";
 
 export default function RecentWork() {
     const projects = [
-    {name: "HobbyCount", url: "/hobbycount"},
     {name: "MoneyBalance", url: "/moneybalance"},
+    {name: "HobbyCount", url: "/hobbycount"},
     { name: "GitHub", url: "https://github.com/ToneMatheus" },
     { name: "Project Spending Page", url: "/spending" },
   ];

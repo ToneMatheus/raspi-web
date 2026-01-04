@@ -1,3 +1,4 @@
+import Accomplishment from './Accomplishment';
 import Header from './Header';
 import ProfileIntro from './ProfileIntro';
 import RecentWork from './RecentWork';
@@ -25,6 +26,7 @@ function About() {
         <ProfileIntro />
         {/* <NowPlaying /> */}
         <RecentWork />
+        <Accomplishment/>
         <Technologies />
       </main>
     </div>
